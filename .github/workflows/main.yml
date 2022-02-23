@@ -1,0 +1,33 @@
+name: Sync Fork
+
+on:
+  schedule:
+    - cron: '*/1 * * * *' # every 1 minutes
+
+jobs:
+  pull-request-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        with:
+          script: |
+           const repo = context.payload.repository.name;
+           const owner = context.payload.repository.owner.login
+           const comparison = await context.octokit.repos.compareCommits({
+                 owner: owner,
+                 repo: repo,
+                 head: 'main',
+                 base: 'chandralekhasingasani:main'
+             })
+           if(comparison.data.status!='identical')
+            {
+              await context.octokit.repos.mergeUpstream({
+              repo,
+              owner,
+              branch: 'main' // the body of your PR,
+             });
+           }
+          
+          
+          
