@@ -2,33 +2,17 @@ name: Sync Fork
 
 on:
   schedule:
-    - cron: '*/1 * * * *' # every 1 minutes
-  workflow_dispatch:
+    - cron: '*/30 * * * *' # every 30 minutes
+  workflow_dispatch: # on button click
 
 jobs:
-  pull-request-test:
+  sync:
+
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: ./
+      - uses: tgymnich/fork-sync@v1.4
         with:
-          script: |
-           const repo = context.payload.repository.name;
-           const owner = context.payload.repository.owner.login
-           const comparison = await context.octokit.repos.compareCommits({
-                 owner: owner,
-                 repo: repo,
-                 head: 'main',
-                 base: 'chandralekhasingasani:main'
-             })
-           if(comparison.data.status!='identical')
-            {
-              await context.octokit.repos.mergeUpstream({
-              repo,
-              owner,
-              branch: 'main' // the body of your PR,
-             });
-           }
-          
-          
-          
+          owner: llvm
+          base: master
+          head: master
